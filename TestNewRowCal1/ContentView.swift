@@ -1,5 +1,10 @@
 import SwiftUI
 
+// 扩展 Calendar，用于处理中国农历
+extension Calendar {
+    static let chinese = Calendar(identifier: .chinese)
+}
+
 struct ContentView: View {
     @State private var items: [Date] = []  // 存储要显示的日期
     @State private var scrollViewProxy: ScrollViewProxy? = nil  // 用于滚动到特定位置
@@ -35,24 +40,38 @@ struct ContentView: View {
 
                                     // 日期部分使用 LazyVGrid 显示
                                     LazyVGrid(columns: columns, spacing: 10) {
-                                        ForEach(paddedDays(for: monthDates), id: \.self) { day in
+                                        ForEach(paddedDays(for: monthDates), id: \.1.uuidString) { (day, _) in
                                             if let date = day {
                                                 VStack {
                                                     // 高亮显示今天的日期
                                                     if Calendar.current.isDateInToday(date) {
-                                                        Text(getDay(date: date))
-                                                            .font(.headline)
-                                                            .foregroundColor(.white)
-                                                            .frame(width: 35, height: 35)
-                                                            .background(Color.red)
-                                                            .cornerRadius(5)
-                                                            .id("today")  // 给当天日期设置 ID
+                                                        VStack {
+                                                            Text(getDay(date: date))
+                                                                .font(.headline)
+                                                                .foregroundColor(.white)
+                                                                .frame(width: 35, height: 35)
+                                                                .background(Color.red)
+                                                                .cornerRadius(5)
+                                                                .id("today")  // 给当天日期设置 ID
+
+                                                            // 显示农历日期
+                                                            Text(getChineseLunarDay(for: date))
+                                                                .font(.caption)
+                                                                .foregroundColor(.white)
+                                                        }
                                                     } else {
-                                                        Text(getDay(date: date))
-                                                            .font(.headline)
-                                                            .foregroundColor(.primary)
-                                                            .frame(width: 35, height: 35)
-                                                            .background(Color.clear)
+                                                        VStack {
+                                                            Text(getDay(date: date))
+                                                                .font(.headline)
+                                                                .foregroundColor(.primary)
+                                                                .frame(width: 35, height: 35)
+                                                                .background(Color.clear)
+
+                                                            // 显示农历日期
+                                                            Text(getChineseLunarDay(for: date))
+                                                                .font(.caption)
+                                                                .foregroundColor(.gray)
+                                                        }
                                                     }
                                                 }
                                             } else {
@@ -160,20 +179,20 @@ struct ContentView: View {
         return grouped
     }
 
-    // 按星期排列日期，填充空白占位符
-    func paddedDays(for monthDates: [Date]) -> [Date?] {
-        var paddedDates = [Date?]()
+    // 按星期排列日期，填充空白占位符，并为每个日期生成唯一ID
+    func paddedDays(for monthDates: [Date]) -> [(Date?, UUID)] {
+        var paddedDates = [(Date?, UUID)]()
 
         if let firstDate = monthDates.first {
             let firstWeekday = Calendar.current.component(.weekday, from: firstDate) - 1
-            paddedDates.append(contentsOf: Array(repeating: nil, count: firstWeekday)) // 填充空白
+            paddedDates.append(contentsOf: Array(repeating: (nil, UUID()), count: firstWeekday)) // 填充空白
         }
 
-        paddedDates.append(contentsOf: monthDates)
+        paddedDates.append(contentsOf: monthDates.map { ($0, UUID()) })
 
         let remainder = paddedDates.count % 7
         if remainder > 0 {
-            paddedDates.append(contentsOf: Array(repeating: nil, count: 7 - remainder)) // 填充到满一行
+            paddedDates.append(contentsOf: Array(repeating: (nil, UUID()), count: 7 - remainder)) // 填充到满一行
         }
 
         return paddedDates
@@ -181,7 +200,6 @@ struct ContentView: View {
 
     // 滚动到今天的日期
     func scrollToToday() {
-        // 使用 ScrollViewProxy 滚动到当天的 ID "today"
         DispatchQueue.main.async {
             scrollViewProxy?.scrollTo("today", anchor: .center)
         }
@@ -194,7 +212,7 @@ struct ContentView: View {
         let currentYear = calendar.component(.year, from: today)
 
         // 加载前一年，当前年，和下一年
-        for yearOffset in -1...1 {
+        for yearOffset in -100...100 {
             addDates(forYear: currentYear + yearOffset)
         }
     }
@@ -223,6 +241,16 @@ struct ContentView: View {
             let nextYear = calendar.component(.year, from: lastDate) + 1
             addDates(forYear: nextYear)
         }
+    }
+    
+    // 获取农历日期
+    func getChineseLunarDay(for date: Date) -> String {
+        let chineseCalendar = Calendar.chinese
+        let day = chineseCalendar.component(.day, from: date)
+        let month = chineseCalendar.component(.month, from: date)
+        let chineseMonths = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"]
+        let chineseDays = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"]
+        return "\(chineseMonths[month - 1]) \(chineseDays[day - 1])"
     }
 }
 
