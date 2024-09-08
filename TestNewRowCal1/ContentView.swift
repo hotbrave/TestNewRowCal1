@@ -72,6 +72,7 @@ struct ContentView: View {
                 .onAppear {
                     scrollViewProxy = proxy
                     loadInitialDates()  // 载入默认日期
+                    // 等待视图加载完成后再滚动
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         scrollToToday()  // 应用启动时滚动到今天
                     }
@@ -81,6 +82,17 @@ struct ContentView: View {
             HStack {
                 Spacer()
 
+                // 添加新一年的按钮
+                Button(action: {
+                    addNextYear()
+                }) {
+                    Text("添加新一年")
+                        .padding()
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                
                 // 滚动到今天的按钮
                 Button(action: {
                     scrollToToday()
@@ -201,6 +213,15 @@ struct ContentView: View {
                 items.append(date)
                 date = calendar.date(byAdding: .day, value: 1, to: date)!
             }
+        }
+    }
+
+    // 添加下一年
+    func addNextYear() {
+        let calendar = Calendar.current
+        if let lastDate = items.last {
+            let nextYear = calendar.component(.year, from: lastDate) + 1
+            addDates(forYear: nextYear)
         }
     }
 }
