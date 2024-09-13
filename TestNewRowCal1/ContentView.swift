@@ -55,7 +55,7 @@ struct ContentView: View {
                                                                 .id("today")  // 给当天日期设置 ID
 
                                                             // 显示农历日期
-                                                            Text(getChineseLunarDay(for: date))
+                                                            Text(getChineseLunarDay(for: date, showMonth: isFirstDayOfChineseMonth(date)))
                                                                 .font(.caption)
                                                                 .foregroundColor(.white)
                                                         }
@@ -67,8 +67,8 @@ struct ContentView: View {
                                                                 .frame(width: 35, height: 35)
                                                                 .background(Color.clear)
 
-                                                            // 显示农历日期
-                                                            Text(getChineseLunarDay(for: date))
+                                                            // 显示农历日期（仅日期或月份和日期）
+                                                            Text(getChineseLunarDay(for: date, showMonth: isFirstDayOfChineseMonth(date)))
                                                                 .font(.caption)
                                                                 .foregroundColor(.gray)
                                                         }
@@ -244,18 +244,23 @@ struct ContentView: View {
     }
     
     // 获取农历日期
-    func getChineseLunarDay(for date: Date) -> String {
+    func getChineseLunarDay(for date: Date, showMonth: Bool) -> String {
         let chineseCalendar = Calendar.chinese
         let day = chineseCalendar.component(.day, from: date)
         let month = chineseCalendar.component(.month, from: date)
         let chineseMonths = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"]
         let chineseDays = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"]
-        return "\(chineseMonths[month - 1]) \(chineseDays[day - 1])"
-    }
-}
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+        let chineseMonth = chineseMonths[month - 1]
+        let chineseDay = day <= chineseDays.count ? chineseDays[day - 1] : ""
+
+        return showMonth ? chineseMonth : chineseDay
+    }
+
+    // 判断是否为农历月份的第一天
+    func isFirstDayOfChineseMonth(_ date: Date) -> Bool {
+        let chineseCalendar = Calendar.chinese
+        let day = chineseCalendar.component(.day, from: date)
+        return day == 1
     }
 }
