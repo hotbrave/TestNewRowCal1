@@ -100,17 +100,6 @@ struct ContentView: View {
 
             HStack {
                 Spacer()
-
-                // 添加新一年的按钮
-                Button(action: {
-                    addNextYear()
-                }) {
-                    Text("添加新一年")
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
                 
                 // 滚动到今天的按钮
                 Button(action: {
@@ -234,15 +223,6 @@ struct ContentView: View {
         }
     }
 
-    // 添加下一年
-    func addNextYear() {
-        let calendar = Calendar.current
-        if let lastDate = items.last {
-            let nextYear = calendar.component(.year, from: lastDate) + 1
-            addDates(forYear: nextYear)
-        }
-    }
-    
     // 获取农历日期
     func getChineseLunarDay(for date: Date, showMonth: Bool) -> String {
         let chineseCalendar = Calendar.chinese
