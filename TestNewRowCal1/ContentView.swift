@@ -53,6 +53,7 @@ struct ContentView: View {
                                                                 .background(Color.red)
                                                                 .cornerRadius(5)
                                                                 .id("today")  // 给当天日期设置 ID
+                                                            let _ = print("today is ready")
 
                                                             // 显示农历日期
                                                             Text(getChineseLunarDay(for: date, showMonth: isFirstDayOfChineseMonth(date)))
