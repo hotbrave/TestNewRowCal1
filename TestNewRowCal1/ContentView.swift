@@ -112,10 +112,19 @@ struct ContentView: View {
 
             HStack {
                 Spacer()
-                
+
                 // 滚动到今天的按钮
                 Button(action: {
-                    scrollToToday()
+                    let today = Date()
+                    let targetMonthID = getMonthID(for: today)  // 获取今天所在月份的 ID
+
+                    // 先滚动到今天所在的月份
+                    scrollViewProxy?.scrollTo(targetMonthID, anchor: .top)
+
+                    // 确保滚动到今天
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        scrollViewProxy?.scrollTo("today", anchor: .center)
+                    }
                 }) {
                     Text("滚动到今天")
                         .padding()
@@ -124,6 +133,7 @@ struct ContentView: View {
                         .cornerRadius(10)
                 }
             }
+
             .padding()
         }
     }
