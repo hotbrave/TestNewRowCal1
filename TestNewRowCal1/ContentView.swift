@@ -83,6 +83,7 @@ struct ContentView: View {
                                     }
                                 }
                                 .padding(.horizontal)
+                                .id(getMonthID(for: firstDate))  // 给月份设置 ID
                             }
                         }
                     }
@@ -91,9 +92,19 @@ struct ContentView: View {
                 .onAppear {
                     scrollViewProxy = proxy
                     loadInitialDates()  // 载入默认日期
+
+                    let today = Date()
+                    let targetMonthID = getMonthID(for: today)  // 获取今天所在月份的 ID
+
                     // 等待视图加载完成后再滚动
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        scrollToToday()  // 应用启动时滚动到今天
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        // 滚动到今天所在的月份
+                        proxy.scrollTo(targetMonthID, anchor: .top)
+                        
+                        // 确保滚动到今天
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            proxy.scrollTo("today", anchor: .center)
+                        }
                     }
                 }
             }
@@ -242,5 +253,13 @@ struct ContentView: View {
         let chineseCalendar = Calendar.chinese
         let day = chineseCalendar.component(.day, from: date)
         return day == 1
+    }
+
+    // 根据日期生成唯一的月份ID
+    func getMonthID(for date: Date) -> String {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        return "\(year)\(String(format: "%02d", month))"  // 返回类似 "202409" 这样的 ID
     }
 }
