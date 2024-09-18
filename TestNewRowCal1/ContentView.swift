@@ -58,7 +58,7 @@ struct ContentView: View {
                                                             // 显示农历日期
                                                             Text(getChineseLunarDay(for: date, showMonth: isFirstDayOfChineseMonth(date)))
                                                                 .font(.caption)
-                                                                .foregroundColor(.white)
+                                                                .foregroundColor(.gray)
                                                         }
                                                     } else {
                                                         VStack {
@@ -141,7 +141,7 @@ struct ContentView: View {
     // 获取星期的符号（从星期日到星期六）
     func getWeekdaySymbol(for index: Int) -> String {
         let chineseWeekdays = ["日", "一", "二", "三", "四", "五", "六"]
-        return "" + chineseWeekdays[index]
+        return "周" + chineseWeekdays[index]
     }
 
     // 获取月份名称
