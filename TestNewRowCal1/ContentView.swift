@@ -140,15 +140,15 @@ struct ContentView: View {
 
     // 获取星期的符号（从星期日到星期六）
     func getWeekdaySymbol(for index: Int) -> String {
-        let symbols = Calendar.current.shortWeekdaySymbols
-        return symbols[index]
+        let chineseWeekdays = ["日", "一", "二", "三", "四", "五", "六"]
+        return "" + chineseWeekdays[index]
     }
 
     // 获取月份名称
     func getMonthTitle(date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM"
-        return formatter.string(from: date)
+        let chineseMonths = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
+        let month = Calendar.current.component(.month, from: date)
+        return chineseMonths[month - 1]
     }
 
     // 获取年份
