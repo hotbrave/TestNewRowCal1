@@ -8,6 +8,10 @@ extension Calendar {
 struct ContentView: View {
     @State private var items: [Date] = []  // 存储要显示的日期
     @State private var scrollViewProxy: ScrollViewProxy? = nil  // 用于滚动到特定位置
+    @State private var today = Date()  // 当前日期
+    @State private var isFirstLaunch = true  // 标记是否是首次启动
+    
+    @Environment(\.scenePhase) var scenePhase // 监听应用的场景状态
 
     let columns = Array(repeating: GridItem(.flexible()), count: 7) // 每行显示 7 列，类似日历布局
 
@@ -106,6 +110,12 @@ struct ContentView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             proxy.scrollTo("today", anchor: .center)
                         }
+                    }
+                }
+                .onChange(of: scenePhase) { newPhase in
+                    if newPhase == .active {
+                        // 当应用从后台进入前台时更新 today 状态
+                        updateToday()
                     }
                 }
             }
@@ -272,5 +282,9 @@ struct ContentView: View {
         let year = calendar.component(.year, from: date)
         let month = calendar.component(.month, from: date)
         return "\(year)\(String(format: "%02d", month))"  // 返回类似 "202409" 这样的 ID
+    }
+    // 更新 today 变量为当前日期
+    func updateToday() {
+        today = Date()
     }
 }
